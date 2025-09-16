@@ -12,7 +12,7 @@ permissions := {
 		"delete": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}},
 	},
 }
-allow if {
+allow {
 	input.action != ""
 	input.resource != ""
 	input.groups_data != ""
