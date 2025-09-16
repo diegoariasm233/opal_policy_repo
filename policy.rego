@@ -22,27 +22,30 @@ permissions := {
     "post": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}}
   },
   "invoices": {
-    "get":  {"groups": {"Consultar_Plataforma", "S_EXAMPLE_SECURITY_GRUP", "EDITAR_OPERACIONES"}},
-    "post": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}},
+    "get":    {"groups": {"Consultar_Plataforma", "S_EXAMPLE_SECURITY_GRUP", "EDITAR_OPERACIONES"}},
+    "post":   {"groups": {"S_EXAMPLE_SECURITY_GRUP"}},
     "delete": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}}
   }
 }
 
+# Conjunto de grupos del usuario
 user_groups := { g |
   some i
   input.groups_data[i].displayName == g
 }
 
+# Validación mínima
 valid_input {
   input.action != ""
   input.resource != ""
 }
 
+# Regla principal: hay intersección entre user_groups y perms.groups
 allow {
   valid_input
   perms := permissions[input.resource][input.action]
   some g
-  g := user_groups[_]
+  user_groups[g]
   perms.groups[g]
 }
 
