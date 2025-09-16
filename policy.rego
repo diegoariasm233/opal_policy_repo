@@ -26,8 +26,9 @@ permissions := {
 }
 
 allow if {
-    input.action != ""
-    input.resource != ""
+	input.action != ""
+	input.resource != ""
+	input.groups_data != ""
 	perms := permissions[input.resource][input.action]
 	some i
 	grp := input.groups_data[i].displayName
