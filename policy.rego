@@ -13,40 +13,29 @@ package play
 
 default allow := false
 
-# ---- Permisos de ejemplo (constante) ----
-# Puedes añadir recursos y acciones aquí.
-# Cada acción lista los grupos habilitados.
 permissions := {
-  "buttonDerivateTable": {
-    "get":  {"groups": {"EDITAR_OPERACIONES", "Consultar_Plataforma"}},
-    "post": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}}
-  },
-  "invoices": {
-    "get":    {"groups": {"Consultar_Plataforma", "S_EXAMPLE_SECURITY_GRUP", "EDITAR_OPERACIONES"}},
-    "post":   {"groups": {"S_EXAMPLE_SECURITY_GRUP"}},
-    "delete": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}}
-  }
+	"buttonDerivateTable": {
+		"get": {"groups": {"EDITAR_OPERACIONES", "Consultar_Plataforma"}},
+		"post": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}},
+	},
+	"invoices": {
+		"get": {"groups": {"Consultar_Plataforma", "S_EXAMPLE_SECURITY_GRUP", "EDITAR_OPERACIONES"}},
+		"post": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}},
+		"delete": {"groups": {"S_EXAMPLE_SECURITY_GRUP"}},
+	},
 }
 
-# Conjunto de grupos del usuario
-user_groups := { g |
-  some i
-  input.groups_data[i].displayName == g
+valid_input if {
+	input.action != ""
+	input.resource != ""
 }
 
-# Validación mínima
-valid_input {
-  input.action != ""
-  input.resource != ""
-}
-
-# Regla principal: hay intersección entre user_groups y perms.groups
-allow {
-  valid_input
-  perms := permissions[input.resource][input.action]
-  some g
-  user_groups[g]
-  perms.groups[g]
+allow if {
+	valid_input
+	perms := permissions[input.resource][input.action]
+	some i
+	grp := input.groups_data[i].displayName
+	perms.groups[grp]
 }
 
 #allow if{
