@@ -28,63 +28,23 @@ permissions := {
   }
 }
 
-# ---- Grupos del usuario (como conjunto) ----
 user_groups := { g |
   some i
   input.groups_data[i].displayName == g
 }
 
-# ---- Validaciones mínimas de input ----
 valid_input {
   input.action != ""
   input.resource != ""
 }
 
-# ---- Existe configuración para resource+action ----
-configured_action(perms) {
-  perms := permissions[input.resource][input.action]
-}
-
-# ---- Regla principal: permitir si hay intersección de grupos ----
 allow {
   valid_input
   perms := permissions[input.resource][input.action]
   some g
   g := user_groups[_]
-  g in perms.groups
+  perms.groups[g]
 }
-
-# ---- Detalles opcionales para depurar (útil en pruebas) ----
-details := {
-  "valid_input": valid_input,
-  "resource": input.resource,
-  "action": input.action,
-  "user_groups": user_groups,
-  "configured": configured_action(_),
-  "allowed_groups_for_action": allowed_groups_for_action,
-  "reason": reason,
-}
-
-allowed_groups_for_action := s {
-  configured_action(perms)
-  s := perms.groups
-} else := {}
-
-reason := r {
-  not valid_input
-  r := "missing action or resource"
-} else := r {
-  valid_input
-  not configured_action(_)
-  r := sprintf("no policy for %s %s", [input.action, input.resource])
-} else := r {
-  valid_input
-  configured_action(perms)
-  # No intersección de grupos
-  not allow
-  r := "user has no required group"
-} else := "ok"
-
 
 #allow if{
  #  input.request.parsed_token.payload.groups[_] == "devops_team"
